@@ -138,7 +138,7 @@ Args:
 %%
 
 /* @TODO: rewrite yyerror() */
-void yyerror(const char *s){
+void yyerror(int type, int lineno, const char *msg){
     printf("syntax error: ");
 }
 

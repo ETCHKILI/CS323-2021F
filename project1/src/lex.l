@@ -12,7 +12,7 @@ letter      [a-zA-Z]
 letter_     {letter}|_
 
 dec_int     0|([1-9][0-9]*)
-hex_int     0x[0-9]*   
+hex_int     0x(0|[1-9a-fA-F][0-9a-fA-F]*)   
 
 float 
 
