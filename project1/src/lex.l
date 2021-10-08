@@ -1,10 +1,11 @@
 %{
+    int htoi(const char* hex_int);
+    int lineno = 1;
+    void check_int(const char* int_str);
+    void myerror(int type, int lineno, const char *msg);
+
     #include "syntax.tab.h"
     #include "string.h"
-
-    int htoi(const char* hex_int);
-
-    int lineno = 1;
 %}
 
 digit       [0-9]
@@ -14,19 +15,20 @@ letter_     {letter}|_
 dec_int     0|([1-9][0-9]*)
 hex_int     0x(0|[1-9a-fA-F][0-9a-fA-F]*)   
 
-float 
+float       (0|[1-9][0-9]*)\.[0-9]*[1-9][0-9]*
 
 char        \'.\'
-hex_char    \\0x
+hex_char    \'[\x00-\xFF]\'
 
-id          {letter_}+({digit}|{letter_})*
+id          {letter_}({digit}|{letter_})*
+bad_id      {digit}({digit}|{letter_})*
 
 next_line   \n
 empty       [ \n\r\t]
 
 
 %%
-
+"int" | "float" | "char"    { return TYPE; }
 "struct"    { return STRUCT; }
 "if"        { return IF; }
 "else"      { return ELSE; }
@@ -63,14 +65,18 @@ empty       [ \n\r\t]
             }
 
 {hex_int}   { yylval.int_val = htoi(yytext); return INT; }
+
+
 {float}     { yylval.float_val = atof(yytext); return FLOAT; }
+
 {char}|{hex_char}   { yylval.string_val = strdup(yytext); return CHAR; }
+
 {id}        { yylval.string_val = strdup(yytext); return ID; }
 
 {next_line} { lineno += 1; }
 {empty}     { }
 
-.           { yyerror(); }
+.           { myerror(0, lineno, yytext); }
 
 %%
 
@@ -79,13 +85,13 @@ void check_int(const char* int_str)
     int size = (int) strlen(int_str);
     if (size > 10) 
     {
-        yyerror();
+        myerror(0, lineno, "too large integer");
     }
 
     long long val = atoll(int_str);
     if (val > 2147483647)
     {
-        yyerror();
+        myerror(0, lineno, "too large integer");
     }
 }
 
@@ -94,10 +100,11 @@ int htoi(const char* hex_int)
     int size = (int) strlen(hex_int);
     if (size > 10)
     {
-        yyerror(); /* TODO: call yyerror correctly */
+        myerror(0, lineno, "too large integer"); /* TODO: call myerror correctly */
     }
 
     int res = 0;
+    int hexdigit;
     for (int i = 2; i < size; ++i)
     {
         if (hex_int[i] >= '0' && hex_int[i] <= '9') {

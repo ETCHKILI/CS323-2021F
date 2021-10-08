@@ -1,6 +1,13 @@
 %{
-    #include"lex.yy.c"
-    void yyerror(const char*);
+    #include "lex.yy.c"
+
+    void yyerror(const char *s);
+    #include "stdio.h"
+    #include "stdlib.h"
+    #include "string.h"
+
+    
+    char ofname[40];
 %}
 
 %union 
@@ -10,10 +17,11 @@
     char *string_val;
 }
 
-%token STRUCT IF ELSE WHILE RETURN
+%token TYPE STRUCT IF ELSE WHILE RETURN
 %token DOT SEMI COMMA ASSIGN LT LE GT GE NE EQ 
 %token PLUS MINUS MUL DIV AND OR NOT
 %token LP RP LB RB LC RC
+%token INT FLOAT CHAR ID
 
 
 
@@ -25,7 +33,7 @@ Program:
 
 ExtDefList:
     ExtDef ExtDefList
-    | $
+    | /* allow empty string */
     ;
 
 ExtDef:
@@ -66,6 +74,7 @@ VarList:
 ParamDec: 
     Specifier VarDec
     ;
+    
 
 /* statement */
 CompSt: 
@@ -73,7 +82,7 @@ CompSt:
     ;
 StmtList: 
     Stmt StmtList
-    | $
+    | /* allow empty string */
     ;
 Stmt: 
     Exp SEMI
@@ -88,7 +97,7 @@ Stmt:
 /* local definition */
 DefList: 
     Def DefList
-    | $
+    | /* allow empty string */
     ;
 Def: 
     Specifier DecList SEMI
@@ -133,22 +142,30 @@ Exp:
 Args: 
     Exp COMMA Args
     | Exp
-    ;
+    
 
 %%
 
-/* @TODO: rewrite yyerror() */
-void yyerror(int type, int lineno, const char *msg){
-    printf("syntax error: ");
+void yyerror(const char *s){
+    printf("error!");
+}
+
+/* @TODO: rewrite myerror() */
+void myerror(int type, int lineno, const char *msg){
+    FILE *fp = fopen(ofname, "a+");
+    if (type == 0) {
+        fprintf(fp, "Error type A at Line %d: %s", lineno, msg);
+    }
+    if (type == 1) {
+        fprintf(fp, "Error type B at Line %d: %s", lineno, msg);
+    }
 }
 
 /* @TODO: print the parse tree */
 
 
-
-
-
-int main(int argc, char **argv){
+int main(int argc, char **argv)
+{
     if(argc != 2) {
         fprintf(stderr, "Usage: %s <file_path>\n", argv[0]);
         exit(-1);
@@ -157,6 +174,11 @@ int main(int argc, char **argv){
         perror(argv[1]);
         exit(-1);
     }
+
+    strcpy(ofname, argv[1]);
+    char *dot = strrchr(ofname, '.');
+    strcpy(dot, ".out");
+
     yyparse();
     return 0;
 }
