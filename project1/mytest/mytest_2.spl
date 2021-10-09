@@ -1,0 +1,12 @@
+int mytest_2(int a1, int a2)
+{
+    int a1 = 17.01;
+    float f1 = 21.9;
+    while(a1 < 4)
+    {
+        f1 = 19.01;
+    }
+)
+
+//line 3: define int variable as a float
+//line 9: wrong ')', should be '}'

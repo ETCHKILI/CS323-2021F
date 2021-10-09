@@ -1,0 +1,11 @@
+int sum( int a, int b )
+{
+    float c = a + b;
+    while( a > 1)
+    {
+        return c;
+    }
+    return a;
+}
+
+//line6: wrong result type
