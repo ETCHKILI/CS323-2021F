@@ -7,7 +7,7 @@
     #include "string.h"
 
     
-    char ofname[40];
+    char ofname[40]; // output-file name
 %}
 
 %union 
@@ -150,7 +150,6 @@ void yyerror(const char *s){
     printf("error!");
 }
 
-/* @TODO: rewrite myerror() */
 void myerror(int type, int lineno, const char *msg){
     FILE *fp = fopen(ofname, "a+");
     if (type == 0) {
@@ -175,9 +174,11 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
+    /* get the output-file name */
     strcpy(ofname, argv[1]);
     char *dot = strrchr(ofname, '.');
     strcpy(dot, ".out");
+    fopen(ofname, "w");
 
     yyparse();
     return 0;
