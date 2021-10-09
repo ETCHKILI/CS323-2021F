@@ -2,10 +2,13 @@ int mytest_1(int a1, int a2)
 {
     int a1 = 17;
     float f1 = 21.9;
+    hex_int a4 = 0x9gh;
     while(a3 < 4)
     {
         f1 = 19.01;
     }
 }
 
-//line5: no such variable named 'a3'
+//line3: redenfined 'a1'
+//line5: wrong int type
+//line6: undefined variable named 'a3'
