@@ -8,7 +8,3 @@ int mytest_1(int a1, int a2)
         f1 = 19.01
     }
 }
-
-
-//line5: wrong int type
-//line8: missing ';'
