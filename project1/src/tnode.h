@@ -15,8 +15,9 @@ struct tnode
     };
 };
 
-/*构造抽象语法树,变长参数，name:语法单元名字；num:变长参数中语法结点个数*/
+
 struct tnode *new_tnode(char* name,int num,...);
 
-/*遍历抽象语法树，level为树的层数*/
+int check_terminate(const char* name);
+
 void print_parsetree(struct tnode*,int level);

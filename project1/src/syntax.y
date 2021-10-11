@@ -5,7 +5,6 @@
     #include "stdlib.h"
     #include "string.h"
     
-    char ofname[40]; // output-file name
     struct tnode *head;
 %}
 
@@ -14,6 +13,7 @@
     struct tnode *nd;
 }
 
+%nonassoc <nd> ILLEGAL_TOKEN
 %nonassoc <nd> LOWER_ELSE
 %nonassoc <nd> ELSE
 %token <nd> TYPE STRUCT
@@ -54,11 +54,14 @@ ExtDef:
     Specifier ExtDecList SEMI {$$=new_tnode("ExtDef",3,$1,$2,$3);}
     | Specifier SEMI {$$=new_tnode("ExtDef",2,$1,$2);}
     | Specifier FunDec CompSt {$$=new_tnode("ExtDef",3,$1,$2,$3);}
+    | Specifier ExtDecList error { myerror(1, yylineno, "Missing Semi"); }
+    | Specifier error { myerror(1, yylineno, "Missing Semi"); }
     ;
 
 ExtDecList:
     VarDec {$$=new_tnode("ExtDecList",1,$1);}
     | VarDec COMMA ExtDecList {$$=new_tnode("ExtDecList",3,$1,$2,$3);}
+    | VarDec ExtDecList error { myerror(1, yylineno, "Missing Comma"); }
     ;
 
 
@@ -70,25 +73,29 @@ Specifier:
 StructSpecifier: 
     STRUCT ID LC DefList RC {$$=new_tnode("StructSpecifier",5,$1,$2,$3,$4,$5);}
     | STRUCT ID {$$=new_tnode("StructSpecifier",2,$1,$2);}
+    | STRUCT ID LC DefList error { myerror(1, yylineno, "Missing RC"); }
     ;
 
 /* declarator */
 VarDec: 
     ID {$$=new_tnode("VarDec",1,$1);}
     | VarDec LB INT RB {$$=new_tnode("VarDec",4,$1,$2,$3,$4);}
+    | VarDec LB INT error %prec LOWER_ELSE { myerror(1, yylineno, "Missing RB"); }
     ;
 FunDec: 
     ID LP VarList RP {$$=new_tnode("FunDec",4,$1,$2,$3,$4);}
     | ID LP RP {$$=new_tnode("FunDec",3,$1,$2,$3);}
+    | ID LP VarList error { myerror(1, yylineno, "Missing RP"); }
+    | ID LP error { myerror(1, yylineno, "Missing RP"); }
     ;
 VarList: 
     ParamDec COMMA VarList {$$=new_tnode("VarList",3,$1,$2,$3);}
     | ParamDec {$$=new_tnode("VarList",1,$1);}
+    | ParamDec VarList error { myerror(1, yylineno, "Missing Comma"); }
     ;
 ParamDec: 
     Specifier VarDec {$$=new_tnode("ParamDec",2,$1,$2);}
-    ;
-    
+    ;  
 
 /* statement */
 CompSt: 
@@ -105,8 +112,13 @@ Stmt:
     | IF LP Exp RP Stmt %prec LOWER_ELSE {$$=new_tnode("Stmt",5,$1,$2,$3,$4,$5);}
     | IF LP Exp RP Stmt ELSE Stmt {$$=new_tnode("Stmt",7,$1,$2,$3,$4,$5,$6,$7);}
     | WHILE LP Exp RP Stmt {$$=new_tnode("Stmt",5,$1,$2,$3,$4,$5);}
+    
+    | Exp error {myerror(1,yylineno,"Missing SEMI");}
+    | RETURN Exp error {myerror(1,yylineno,"Missing SEMI");}
+    | IF LP Exp error Stmt {myerror(1,yylineno,"Missing RP");}
+    | IF error Exp RP Stmt {myerror(1,yylineno,"Missing LP");}
+    | WHILE LP Exp error Stmt {myerror(1,yylineno,"Missing RP");}
     ;
-
 
 /* local definition */
 DefList: 
@@ -115,10 +127,12 @@ DefList:
     ;
 Def: 
     Specifier DecList SEMI {$$=new_tnode("Def",3,$1,$2,$3);}
+    | Specifier DecList error {myerror(1,yylineno,"Missing SEMI");}
     ;
 DecList: 
     Dec {$$=new_tnode("DecList",1,$1);}
     | Dec COMMA DecList {$$=new_tnode("DecList",3,$1,$2,$3);}
+    | Dec error DecList {myerror(1,yylineno,"Missing Comma");}
     ;
 Dec: 
     VarDec {$$=new_tnode("Dec",1,$1);}
@@ -152,19 +166,30 @@ Exp:
     | INT {$$=new_tnode("Exp",1,$1);}
     | FLOAT {$$=new_tnode("Exp",1,$1);}
     | CHAR {$$=new_tnode("Exp",1,$1);}
+    | ILLEGAL_TOKEN Exp {$$=new_tnode("Exp",2,$1,$2);}
+    | ILLEGAL_TOKEN {$$=new_tnode("Exp",1,$1);}
+
+    | LP Exp error  {myerror(1,yylineno,"Missing RP");}
+    | error Exp RP  {myerror(1,yylineno,"Missing LP");}
+    | ID LP error   {myerror(1,yylineno,"Missing RP");}
+    | ID error RP   {myerror(1,yylineno,"Missing LP");}
+    | Exp LB error  {myerror(1,yylineno,"Missing RB");}
+    | Exp error RB  {myerror(1,yylineno,"Missing LB");}
     ;
 Args: 
     Exp COMMA Args {$$=new_tnode("Args",3,$1,$2,$3);}
     | Exp {$$=new_tnode("Args",1,$1);}
+    | Exp Args error {myerror(1,yylineno,"Missing Comma");}
     
 
 %%
 
 void yyerror(const char *s){
-    printf("%s",s);
+    printf("%s\n",s);
 }
 
 void myerror(int type, int line, const char *msg){
+    error_occur = 1;
     FILE *fp = fopen(ofname, "a+");
     if (type == 0) {
         fprintf(fp, "Error type A at Line %d: %s\n", line, msg);

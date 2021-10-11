@@ -1,42 +1,44 @@
 # include<stdio.h>
 # include<stdlib.h>
-# include<stdarg.h>//变长参数函数所需的头文件
+# include<stdarg.h>
 # include<string.h>
 # include"tnode.h"
 
-struct tnode *new_tnode(char* name,int num,...)//抽象语法树建立
+extern char ofname[40];
+
+struct tnode *new_tnode(char* name,int num,...)
 {
-    va_list valist; //定义变长参数列表
-    struct tnode *a=(struct tnode*)malloc(sizeof(struct tnode));//新生成的父节点
+    va_list valist; 
+    struct tnode *a=(struct tnode*)malloc(sizeof(struct tnode));
     struct tnode *temp=(struct tnode*)malloc(sizeof(struct tnode));
     // if(!a) 
     // {
     //     yyerror("out of space");
     //     exit(0);
     // }
-    a->name=name;//语法单元名字
-    va_start(valist,num);//初始化变长参数为num后的参数
+    a->name=name;
+    va_start(valist,num);
 
-    if(num>0)//num>0为非终结符：变长参数均为语法树结点，孩子兄弟表示法
+    if(num>0)
     {
-        temp=va_arg(valist, struct tnode*);//取变长参数列表中的第一个结点设为a的左孩子
+        temp=va_arg(valist, struct tnode*);
         a->left=temp;
-        a->line=temp->line;//父节点a的行号等于左孩子的行号
+        a->line=temp->line;
 
-        if(num>=2) //可以规约到a的语法单元>=2
+        if(num>=2) 
         {
-            for(int i=0; i<num-1; ++i)//取变长参数列表中的剩余结点，依次设置成兄弟结点
+            for(int i=0; i<num-1; ++i)
             {
                 temp->right=va_arg(valist,struct tnode*);
                 temp=temp->right;
             }
         }
     }
-    else //num==0为终结符或产生空的语法单元：第1个变长参数表示行号，产生空的语法单元行号为-1。
+    else 
     {
-        int t=va_arg(valist, int); //取第1个变长参数
+        int t=va_arg(valist, int); 
         a->line=t;
-        //"ID,TYPE,INTEGER，借助union保存yytext的值
+        
         if((!strcmp(a->name,"ID"))||(!strcmp(a->name,"TYPE"))||(!strcmp(a->name,"CHAR")))
         {char*t;t=(char*)malloc(sizeof(char* )*40);strcpy(t,yytext);a->str_val=t;}
         else if(!strcmp(a->name,"INT")) {a->int_val=va_arg(valist, int);}
@@ -46,34 +48,47 @@ struct tnode *new_tnode(char* name,int num,...)//抽象语法树建立
     return a;
 }
 
-void print_parsetree(struct tnode *a,int level)//先序遍历抽象语法树
+void print_parsetree(struct tnode *a,int level)
 {
     if(a!=NULL)
     {
-        
+        FILE *fp = fopen(ofname, "a+");
         if(a->line!=-1){
-            for(int i=0; i<level; ++i)//孩子结点相对父节点缩进2个空格
-            printf("  ");
+            for(int i=0; i<level; ++i)
+            fprintf(fp, "  ");
             
-            printf("%s ",a->name);
-            if((!strcmp(a->name,"ID"))||(!strcmp(a->name,"TYPE"))||(!strcmp(a->name,"CHAR")))printf(":%s ",a->str_val);
-            else if(!strcmp(a->name,"INT"))printf(":%d",a->int_val);
-            else if(!strcmp(a->name,"FLOAT"))printf(":%f",a->flt_val);
-            else
-                printf("(%d)",a->line);
-                printf("\n");
+            fprintf(fp, "%s",a->name);
+            if((!strcmp(a->name,"ID"))||(!strcmp(a->name,"TYPE"))||(!strcmp(a->name,"CHAR")))fprintf(fp, ": %s",a->str_val);
+            else if(!strcmp(a->name,"INT"))fprintf(fp, ": %d",a->int_val);
+            else if(!strcmp(a->name,"FLOAT"))fprintf(fp, ": %f",a->flt_val);
+            else if(check_terminate(a->name)){}
+            else {fprintf(fp, " (%d)",a->line);}
+            fprintf(fp, "\n");
         }
-        
-
-        print_parsetree(a->left,level+1);//遍历左子树
-        print_parsetree(a->right,level);//遍历右子树
-    }
+        fclose(fp);
+        print_parsetree(a->left,level+1);
+        print_parsetree(a->right,level);
+    } 
 }
-// void yyerror(char*s,...) //变长参数错误处理函数
+// void yyerror(char*s,...) 
 // {
 //     va_list ap;
 //     va_start(ap,s);
-//     fprintf(stderr,"%d:error:",yylineno);//错误行号
+//     fprintf(stderr,"%d:error:",yylineno);
 //     vfprintf(stderr,s,ap);
 //     fprintf(stderr,"\n");
 // }
+
+int check_terminate(const char* s) 
+{
+    return
+    !strcmp(s,"STRUCT") || !strcmp(s,"IF") || !strcmp(s,"ELSE")
+    || !strcmp(s,"WHILE") || !strcmp(s,"RETURN") || !strcmp(s,"DOT") || !strcmp(s,"SEMI") 
+    || !strcmp(s,"COMMA") || !strcmp(s,"ASSIGN") || !strcmp(s,"LT") || !strcmp(s,"LE") 
+    || !strcmp(s,"GT") || !strcmp(s,"GE") || !strcmp(s,"NE") || !strcmp(s,"EQ") 
+    || !strcmp(s,"PLUS") || !strcmp(s,"MINUS") || !strcmp(s,"MUL") || !strcmp(s,"DIV") 
+    || !strcmp(s,"AND") || !strcmp(s,"OR") || !strcmp(s,"NOT") || !strcmp(s,"LP") 
+    || !strcmp(s,"RP") || !strcmp(s,"LB") || !strcmp(s,"RB") || !strcmp(s,"LC") 
+    || !strcmp(s,"RC") ;
+
+}

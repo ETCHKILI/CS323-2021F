@@ -1,17 +1,19 @@
 %{
-    
-    int htoi(const char* hex_int);
     int lineno = 1;
     int error_occur = 0;
-    void check_int(const char* int_str);
+    char ofname[40]; // output-file name
+    int htoi(const char* hex_int);
+    // void check_int(const char* int_str);
     void myerror(int type, int lineno, const char *msg);
+    void scan_multiline_comment();
 
     #include "src/tnode.h"
     #include "syntax.tab.h"
     #include "string.h"
+    #include "stdio.h"
 %}
 %option noyywrap
-%option yylineno
+%option yylineno noinput nounput
 digit       [0-9]
 hex_digit   [0-9a-fA-F]
 letter      [a-zA-Z]
@@ -33,37 +35,13 @@ hex_int_err1    0[xX]([g-zG-Z]+{hex_digit}*)*
 float_err0  {digit}*\.{digit}*
 
 char_err0   '\\x{hex_digit}{3,}'
-char_err1   '[\x21-\x26\x28-\xff]*'
+char_err1   ['][\x21-\x26\x28-\xff]*[']
 
 bad_id      {digit}({digit}|{letter_})+
 
 %%
 "//".*      { }
-"/*"        {
-                puts("comments!"); 
-                int c;
-                int lc = 0;
-                while(1) {
-                    switch(input()) {
-                        case EOF:
-                            myerror(0, lineno, "bad comments");
-                            unput(EOF);
-                            goto end;
-                        case '*':
-                            if((c=input())=='/') {
-                                goto end;
-                            }
-                            unput(c);
-                            break;
-                        case '\n':
-                            ++lc;    
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                end:;
-            }
+[/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]   { } 
 "int"|"float"|"char"    { yylval.nd = new_tnode("TYPE", 0, yylineno); return TYPE; }
 "struct"    { yylval.nd = new_tnode("STRUCT", 0, yylineno); return STRUCT; }
 "if"        { yylval.nd = new_tnode("IF", 0, yylineno); return IF; }
@@ -105,19 +83,19 @@ bad_id      {digit}({digit}|{letter_})+
 {id}        { yylval.nd = new_tnode("ID",0,yylineno); return ID; }
 
 
-{dec_int_err0}   { error_occur = 1; myerror(0, lineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return INT; /* 0 leading int */}
-{hex_int_err0}   { error_occur = 1; myerror(0, lineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return INT; /* 0 leading int */}
-{hex_int_err1}   { error_occur = 1; myerror(0, lineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return INT; /* not hex digit */}
-{float_err0}    { error_occur = 1; myerror(0, lineno, yytext); yylval.nd = new_tnode("FLOAT",0,yylineno,0); return FLOAT;}
-{char_err0}         { error_occur = 1; myerror(0, lineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return CHAR;}
-{char_err1}         { error_occur = 1; myerror(0, lineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return CHAR;}
-{bad_id}    { error_occur = 1; myerror(0, lineno, yytext); yylval.nd = new_tnode("ID",0,yylineno); return ID; }
+{dec_int_err0}   { myerror(0, lineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* 0 leading int */}
+{hex_int_err0}   { myerror(0, lineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* 0 leading int */}
+{hex_int_err1}   { myerror(0, lineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* not hex digit */}
+{float_err0}    { myerror(0, lineno, yytext); yylval.nd = new_tnode("FLOAT",0,yylineno,0); return ILLEGAL_TOKEN;}
+{char_err0}         { myerror(0, lineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return ILLEGAL_TOKEN;}
+{char_err1}         { myerror(0, lineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return ILLEGAL_TOKEN;}
+{bad_id}    { myerror(0, lineno, yytext); yylval.nd = new_tnode("ID",0,yylineno); return ID; }
 
 
 {next_line} { lineno += 1; }
 {empty}     { }
 
-.           { error_occur = 1; myerror(0, lineno, yytext); }
+.           { myerror(0, lineno, yytext); }
 
 %%
 
@@ -163,3 +141,29 @@ int htoi(const char* hex_int)
 
     return res;
 }
+
+// void scan_multiline_comment()
+// {
+//     puts("comments!"); 
+//     int c;
+//     int lc = 0;
+//     while(input) {
+//         switch(input()) {
+//             case EOF:
+//                 myerror(0, lineno, "bad comments");
+//                 goto end;
+//             case '*':
+//                 if((c=input())=='/') {
+//                     goto end;
+//                 }
+//                 unput(c);
+//                 break;
+//             case '\n':
+//                 ++lc;    
+//                 break;
+//             default:
+//                 break;
+//         }
+//     }
+//     end:lineno += lc;
+// }
