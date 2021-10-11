@@ -83,19 +83,19 @@ bad_id      {digit}({digit}|{letter_})+
 {id}        { yylval.nd = new_tnode("ID",0,yylineno); return ID; }
 
 
-{dec_int_err0}   { myerror(0, lineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* 0 leading int */}
-{hex_int_err0}   { myerror(0, lineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* 0 leading int */}
-{hex_int_err1}   { myerror(0, lineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* not hex digit */}
-{float_err0}    { myerror(0, lineno, yytext); yylval.nd = new_tnode("FLOAT",0,yylineno,0); return ILLEGAL_TOKEN;}
-{char_err0}         { myerror(0, lineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return ILLEGAL_TOKEN;}
-{char_err1}         { myerror(0, lineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return ILLEGAL_TOKEN;}
-{bad_id}    { myerror(0, lineno, yytext); yylval.nd = new_tnode("ID",0,yylineno); return ID; }
+{dec_int_err0}   { myerror(0, yylineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* 0 leading int */}
+{hex_int_err0}   { myerror(0, yylineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* 0 leading int */}
+{hex_int_err1}   { myerror(0, yylineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* not hex digit */}
+{float_err0}    { myerror(0, yylineno, yytext); yylval.nd = new_tnode("FLOAT",0,yylineno,0); return ILLEGAL_TOKEN;}
+{char_err0}         { myerror(0, yylineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return ILLEGAL_TOKEN;}
+{char_err1}         { myerror(0, yylineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return ILLEGAL_TOKEN;}
+{bad_id}    { myerror(0, yylineno, yytext); yylval.nd = new_tnode("ID",0,yylineno); return ID; }
 
 
 {next_line} { lineno += 1; }
 {empty}     { }
 
-.           { myerror(0, lineno, yytext); }
+.           { myerror(0, yylineno, yytext); }
 
 %%
 

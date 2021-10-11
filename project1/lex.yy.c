@@ -1084,37 +1084,37 @@ YY_RULE_SETUP
 case 37:
 YY_RULE_SETUP
 #line 86 "src/lex.l"
-{ myerror(0, lineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* 0 leading int */}
+{ myerror(0, yylineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* 0 leading int */}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
 #line 87 "src/lex.l"
-{ myerror(0, lineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* 0 leading int */}
+{ myerror(0, yylineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* 0 leading int */}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 88 "src/lex.l"
-{ myerror(0, lineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* not hex digit */}
+{ myerror(0, yylineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* not hex digit */}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 89 "src/lex.l"
-{ myerror(0, lineno, yytext); yylval.nd = new_tnode("FLOAT",0,yylineno,0); return ILLEGAL_TOKEN;}
+{ myerror(0, yylineno, yytext); yylval.nd = new_tnode("FLOAT",0,yylineno,0); return ILLEGAL_TOKEN;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 90 "src/lex.l"
-{ myerror(0, lineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return ILLEGAL_TOKEN;}
+{ myerror(0, yylineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return ILLEGAL_TOKEN;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
 #line 91 "src/lex.l"
-{ myerror(0, lineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return ILLEGAL_TOKEN;}
+{ myerror(0, yylineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return ILLEGAL_TOKEN;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
 #line 92 "src/lex.l"
-{ myerror(0, lineno, yytext); yylval.nd = new_tnode("ID",0,yylineno); return ID; }
+{ myerror(0, yylineno, yytext); yylval.nd = new_tnode("ID",0,yylineno); return ID; }
 	YY_BREAK
 case 44:
 /* rule 44 can match eol */
@@ -1131,7 +1131,7 @@ YY_RULE_SETUP
 case 46:
 YY_RULE_SETUP
 #line 98 "src/lex.l"
-{ myerror(0, lineno, yytext); }
+{ myerror(0, yylineno, yytext); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP

@@ -46,8 +46,8 @@ Program:
     ;
 
 ExtDefList:
-    ExtDef ExtDefList {$$=new_tnode("ExtDefList",2,$1,$2);}
-    | {$$=new_tnode("ExtDef",0,-1);}
+    {$$=new_tnode("ExtDef",0,-1);}
+    | ExtDef ExtDefList {$$=new_tnode("ExtDefList",2,$1,$2);} 
     ;
 
 ExtDef:
@@ -90,8 +90,8 @@ FunDec:
     ;
 VarList: 
     ParamDec COMMA VarList {$$=new_tnode("VarList",3,$1,$2,$3);}
-    | ParamDec {$$=new_tnode("VarList",1,$1);}
     | ParamDec VarList error { myerror(1, yylineno, "Missing Comma"); }
+    | ParamDec {$$=new_tnode("VarList",1,$1);}
     ;
 ParamDec: 
     Specifier VarDec {$$=new_tnode("ParamDec",2,$1,$2);}
@@ -102,8 +102,8 @@ CompSt:
     LC DefList StmtList RC {$$=new_tnode("CompSt",4,$1,$2,$3,$4);}
     ;
 StmtList: 
-    Stmt StmtList {$$=new_tnode("StmtList",2,$1,$2);}
-    | {$$=new_tnode("StmtList",0,-1);}
+    {$$=new_tnode("StmtList",0,-1);}
+    | Stmt StmtList {$$=new_tnode("StmtList",2,$1,$2);}
     ;
 Stmt: 
     Exp SEMI {$$=new_tnode("Stmt",2,$1,$2);}
@@ -112,27 +112,26 @@ Stmt:
     | IF LP Exp RP Stmt %prec LOWER_ELSE {$$=new_tnode("Stmt",5,$1,$2,$3,$4,$5);}
     | IF LP Exp RP Stmt ELSE Stmt {$$=new_tnode("Stmt",7,$1,$2,$3,$4,$5,$6,$7);}
     | WHILE LP Exp RP Stmt {$$=new_tnode("Stmt",5,$1,$2,$3,$4,$5);}
-    
-    | Exp error {myerror(1,yylineno,"Missing SEMI");}
+    | WHILE LP Exp error Stmt {myerror(1,yylineno,"Missing RP");}
     | RETURN Exp error {myerror(1,yylineno,"Missing SEMI");}
     | IF LP Exp error Stmt {myerror(1,yylineno,"Missing RP");}
     | IF error Exp RP Stmt {myerror(1,yylineno,"Missing LP");}
-    | WHILE LP Exp error Stmt {myerror(1,yylineno,"Missing RP");}
     ;
 
 /* local definition */
 DefList: 
-    Def DefList {$$=new_tnode("DefList",2,$1,$2);}
-    | {$$=new_tnode("DefList",0,-1);}
+    {$$=new_tnode("DefList",0,-1);}
+    | Def DefList {$$=new_tnode("DefList",2,$1,$2);}
     ;
 Def: 
     Specifier DecList SEMI {$$=new_tnode("Def",3,$1,$2,$3);}
     | Specifier DecList error {myerror(1,yylineno,"Missing SEMI");}
+    | error DecList SEMI {myerror(1,yylineno,"Missing Specifier");}
     ;
 DecList: 
     Dec {$$=new_tnode("DecList",1,$1);}
     | Dec COMMA DecList {$$=new_tnode("DecList",3,$1,$2,$3);}
-    | Dec error DecList {myerror(1,yylineno,"Missing Comma");}
+    | Dec DecList error {myerror(1,yylineno,"Missing Comma");}
     ;
 Dec: 
     VarDec {$$=new_tnode("Dec",1,$1);}
@@ -156,25 +155,22 @@ Exp:
     | Exp MUL Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
     | Exp DIV Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
     | LP Exp RP {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | LP Exp error {myerror(1,yylineno,"Missing RP");}
     | MINUS Exp {$$=new_tnode("Exp",2,$1,$2);}
     | NOT Exp {$$=new_tnode("Exp",2,$1,$2);}
     | ID LP Args RP {$$=new_tnode("Exp",4,$1,$2,$3,$4);}
+    | ID LP Args error {myerror(1,yylineno,"Missing RP");}
     | ID LP RP {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | ID LP error   {myerror(1,yylineno,"Missing RP");}
     | Exp LB Exp RB {$$=new_tnode("Exp",4,$1,$2,$3,$4);}
+    | Exp LB Exp error  {myerror(1,yylineno,"Missing RB");}
     | Exp DOT ID {$$=new_tnode("Exp",3,$1,$2,$3);}
     | ID {$$=new_tnode("Exp",1,$1);}
     | INT {$$=new_tnode("Exp",1,$1);}
     | FLOAT {$$=new_tnode("Exp",1,$1);}
     | CHAR {$$=new_tnode("Exp",1,$1);}
-    | ILLEGAL_TOKEN Exp {$$=new_tnode("Exp",2,$1,$2);}
+    | Exp ILLEGAL_TOKEN Exp {$$=new_tnode("Exp",2,$1,$2);}
     | ILLEGAL_TOKEN {$$=new_tnode("Exp",1,$1);}
-
-    | LP Exp error  {myerror(1,yylineno,"Missing RP");}
-    | error Exp RP  {myerror(1,yylineno,"Missing LP");}
-    | ID LP error   {myerror(1,yylineno,"Missing RP");}
-    | ID error RP   {myerror(1,yylineno,"Missing LP");}
-    | Exp LB error  {myerror(1,yylineno,"Missing RB");}
-    | Exp error RB  {myerror(1,yylineno,"Missing LB");}
     ;
 Args: 
     Exp COMMA Args {$$=new_tnode("Args",3,$1,$2,$3);}
