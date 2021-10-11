@@ -1,7 +1,6 @@
 int mytest_1(int a1, int a2)
 {
     a1 = 17;
-    float f1 = 21.9;
     hex_int a4 = 0x9gh;
     while(a1 < 4)
     {
