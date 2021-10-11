@@ -1,0 +1,44 @@
+Program (1)
+  ExtDefList (1)
+    ExtDef (1)
+      Specifier (1)
+        TYPE: int
+      FunDec (1)
+        ID: sum
+        LP
+        VarList (1)
+          ParamDec (1)
+            Specifier (1)
+              TYPE: float
+            VarDec (1)
+              ID: a
+          COMMA
+          VarList (1)
+            ParamDec (1)
+              Specifier (1)
+                TYPE: int
+              VarDec (1)
+                ID: b
+        RP
+      CompSt (2)
+        LC
+        StmtList (3)
+          Stmt (3)
+            Exp (3)
+              Exp (3)
+                ID: a
+              ASSIGN
+              Exp (3)
+                FLOAT: 1.100000
+            SEMI
+          StmtList (4)
+            Stmt (4)
+              RETURN
+              Exp (4)
+                Exp (4)
+                  ID: a
+                PLUS
+                Exp (4)
+                  ID: b
+              SEMI
+        RC
