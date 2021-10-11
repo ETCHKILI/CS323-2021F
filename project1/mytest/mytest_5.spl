@@ -1,9 +1,9 @@
 int mytest_5(int a1, int a2)
 {
     a1 = 19;
-    while(a1 < 4))
+    while(a1 < 4)
     {
         f1 = 19.01;
     }
     return 0
-)
+}
