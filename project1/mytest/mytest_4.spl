@@ -1,11 +1,12 @@
-int sum( int a, int b )
+int test_1_r01(int a, int b)
 {
-    float c = a + b;
-    while( a > 1)
-    {
-        return c;
-    }
+  c = 'c';
+  if (a > b)
+  {
     return a;
+  }
+  else
+  {
+    return b;
+  }
 }
-
-//line6: wrong result type

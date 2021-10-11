@@ -1,163 +1,178 @@
 %{
     #include "lex.yy.c"
-
     void yyerror(const char *s);
     #include "stdio.h"
     #include "stdlib.h"
     #include "string.h"
-
     
     char ofname[40]; // output-file name
+    struct tnode *head;
 %}
 
 %union 
 {
-    int int_val;
-    float float_val;
-    char *string_val;
+    struct tnode *nd;
 }
 
-%token TYPE STRUCT IF ELSE WHILE RETURN
-%token DOT SEMI COMMA ASSIGN LT LE GT GE NE EQ 
-%token PLUS MINUS MUL DIV AND OR NOT
-%token LP RP LB RB LC RC
-%token INT FLOAT CHAR ID
+%nonassoc <nd> LOWER_ELSE
+%nonassoc <nd> ELSE
+%token <nd> TYPE STRUCT
+%token <nd> IF WHILE RETURN
+%token <nd> INT
+%token <nd> FLOAT
+%token <nd> CHAR
+%token <nd> ID
+%right <nd> ASSIGN
+%left <nd> OR
+%left <nd> AND
+%left <nd> LT LE GT GE NE EQ
 
+%left <nd> PLUS MINUS
+%left <nd> MUL DIV
+%right <nd> NOT
+%left <nd> LP RP LB RB DOT
+%token <nd> SEMI COMMA
+%token <nd> LC RC
 
+%type <nd> Program ExtDefList
+%type <nd> ExtDef ExtDecList Specifier StructSpecifier VarDec
+%type <nd> FunDec VarList ParamDec CompSt StmtList Stmt DefList
+%type <nd> Def DecList Dec Args Exp
 
 %%
 /* high-level definition */
 Program:
-    ExtDefList
+    ExtDefList {head=new_tnode("Program",1,$1); $$=head;}
     ;
 
 ExtDefList:
-    ExtDef ExtDefList
-    | /* allow empty string */
+    ExtDef ExtDefList {$$=new_tnode("ExtDefList",2,$1,$2);}
+    | {$$=new_tnode("ExtDef",0,-1);}
     ;
 
 ExtDef:
-    Specifier ExtDecList SEMI
-    | Specifier SEMI
-    | Specifier FunDec CompSt
+    Specifier ExtDecList SEMI {$$=new_tnode("ExtDef",3,$1,$2,$3);}
+    | Specifier SEMI {$$=new_tnode("ExtDef",2,$1,$2);}
+    | Specifier FunDec CompSt {$$=new_tnode("ExtDef",3,$1,$2,$3);}
     ;
 
 ExtDecList:
-    VarDec
-    | VarDec COMMA ExtDecList
+    VarDec {$$=new_tnode("ExtDecList",1,$1);}
+    | VarDec COMMA ExtDecList {$$=new_tnode("ExtDecList",3,$1,$2,$3);}
     ;
 
 
 /* specifier */
 Specifier: 
-    TYPE
-    | StructSpecifier
+    TYPE {$$=new_tnode("Specifier",1,$1);}
+    | StructSpecifier {$$=new_tnode("Specifier",1,$1);}
     ;
 StructSpecifier: 
-    STRUCT ID LC DefList RC
-    | STRUCT ID
+    STRUCT ID LC DefList RC {$$=new_tnode("StructSpecifier",5,$1,$2,$3,$4,$5);}
+    | STRUCT ID {$$=new_tnode("StructSpecifier",2,$1,$2);}
     ;
 
 /* declarator */
 VarDec: 
-    ID
-    | VarDec LB INT RB
+    ID {$$=new_tnode("VarDec",1,$1);}
+    | VarDec LB INT RB {$$=new_tnode("VarDec",4,$1,$2,$3,$4);}
     ;
 FunDec: 
-    ID LP VarList RP
-    | ID LP RP
+    ID LP VarList RP {$$=new_tnode("FunDec",4,$1,$2,$3,$4);}
+    | ID LP RP {$$=new_tnode("FunDec",3,$1,$2,$3);}
     ;
 VarList: 
-    ParamDec COMMA VarList
-    | ParamDec
+    ParamDec COMMA VarList {$$=new_tnode("VarList",3,$1,$2,$3);}
+    | ParamDec {$$=new_tnode("VarList",1,$1);}
     ;
 ParamDec: 
-    Specifier VarDec
+    Specifier VarDec {$$=new_tnode("ParamDec",2,$1,$2);}
     ;
     
 
 /* statement */
 CompSt: 
-    LC DefList StmtList RC
+    LC DefList StmtList RC {$$=new_tnode("CompSt",4,$1,$2,$3,$4);}
     ;
 StmtList: 
-    Stmt StmtList
-    | /* allow empty string */
+    Stmt StmtList {$$=new_tnode("StmtList",2,$1,$2);}
+    | {$$=new_tnode("StmtList",0,-1);}
     ;
 Stmt: 
-    Exp SEMI
-    | CompSt
-    | RETURN Exp SEMI
-    | IF LP Exp RP Stmt
-    | IF LP Exp RP Stmt ELSE Stmt
-    | WHILE LP Exp RP Stmt
+    Exp SEMI {$$=new_tnode("Stmt",2,$1,$2);}
+    | CompSt {$$=new_tnode("Stmt",1,$1);}
+    | RETURN Exp SEMI {$$=new_tnode("Stmt",3,$1,$2,$3);}
+    | IF LP Exp RP Stmt %prec LOWER_ELSE {$$=new_tnode("Stmt",5,$1,$2,$3,$4,$5);}
+    | IF LP Exp RP Stmt ELSE Stmt {$$=new_tnode("Stmt",7,$1,$2,$3,$4,$5,$6,$7);}
+    | WHILE LP Exp RP Stmt {$$=new_tnode("Stmt",5,$1,$2,$3,$4,$5);}
     ;
 
 
 /* local definition */
 DefList: 
-    Def DefList
-    | /* allow empty string */
+    Def DefList {$$=new_tnode("DefList",2,$1,$2);}
+    | {$$=new_tnode("DefList",0,-1);}
     ;
 Def: 
-    Specifier DecList SEMI
+    Specifier DecList SEMI {$$=new_tnode("Def",3,$1,$2,$3);}
     ;
 DecList: 
-    Dec
-    | Dec COMMA DecList
+    Dec {$$=new_tnode("DecList",1,$1);}
+    | Dec COMMA DecList {$$=new_tnode("DecList",3,$1,$2,$3);}
     ;
 Dec: 
-    VarDec
-    | VarDec ASSIGN Exp
+    VarDec {$$=new_tnode("Dec",1,$1);}
+    | VarDec ASSIGN Exp {$$=new_tnode("Dec",3,$1,$2,$3);}
     ;
 
 
 /* Expression */
 Exp: 
-    Exp ASSIGN Exp
-    | Exp AND Exp
-    | Exp OR Exp
-    | Exp LT Exp
-    | Exp LE Exp
-    | Exp GT Exp
-    | Exp GE Exp
-    | Exp NE Exp
-    | Exp EQ Exp
-    | Exp PLUS Exp
-    | Exp MINUS Exp
-    | Exp MUL Exp
-    | Exp DIV Exp
-    | LP Exp RP
-    | MINUS Exp
-    | NOT Exp
-    | ID LP Args RP
-    | ID LP RP
-    | Exp LB Exp RB
-    | Exp DOT ID
-    | ID
-    | INT
-    | FLOAT
-    | CHAR
+    Exp ASSIGN Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp AND Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp OR Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp LT Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp LE Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp GT Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp GE Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp NE Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp EQ Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp PLUS Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp MINUS Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp MUL Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp DIV Exp {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | LP Exp RP {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | MINUS Exp {$$=new_tnode("Exp",2,$1,$2);}
+    | NOT Exp {$$=new_tnode("Exp",2,$1,$2);}
+    | ID LP Args RP {$$=new_tnode("Exp",4,$1,$2,$3,$4);}
+    | ID LP RP {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | Exp LB Exp RB {$$=new_tnode("Exp",4,$1,$2,$3,$4);}
+    | Exp DOT ID {$$=new_tnode("Exp",3,$1,$2,$3);}
+    | ID {$$=new_tnode("Exp",1,$1);}
+    | INT {$$=new_tnode("Exp",1,$1);}
+    | FLOAT {$$=new_tnode("Exp",1,$1);}
+    | CHAR {$$=new_tnode("Exp",1,$1);}
     ;
 Args: 
-    Exp COMMA Args
-    | Exp
+    Exp COMMA Args {$$=new_tnode("Args",3,$1,$2,$3);}
+    | Exp {$$=new_tnode("Args",1,$1);}
     
 
 %%
 
 void yyerror(const char *s){
-    printf("error!");
+    printf("%s",s);
 }
 
-void myerror(int type, int lineno, const char *msg){
+void myerror(int type, int line, const char *msg){
     FILE *fp = fopen(ofname, "a+");
     if (type == 0) {
-        fprintf(fp, "Error type A at Line %d: %s", lineno, msg);
+        fprintf(fp, "Error type A at Line %d: %s\n", line, msg);
     }
     if (type == 1) {
-        fprintf(fp, "Error type B at Line %d: %s", lineno, msg);
+        fprintf(fp, "Error type B at Line %d: %s\n", line, msg);
     }
+    fclose(fp);
 }
 
 /* @TODO: print the parse tree */
@@ -178,8 +193,13 @@ int main(int argc, char **argv)
     strcpy(ofname, argv[1]);
     char *dot = strrchr(ofname, '.');
     strcpy(dot, ".out");
-    fopen(ofname, "w");
+    FILE *fp = fopen(ofname, "w");
+    fclose(fp);
 
     yyparse();
+
+    if(!error_occur){
+        print_parsetree(head,0);
+    }
     return 0;
 }
