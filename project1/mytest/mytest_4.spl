@@ -1,6 +1,5 @@
-int test_1_r01(int a, int b)
+int mytest_4(int 1a, int 2b)
 {
-  c = 'c';
   if (a > b)
   {
     return a;
