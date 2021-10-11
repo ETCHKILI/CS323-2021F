@@ -3,5 +3,3 @@ int sum(int a, int b}
     return a + b;
 )
 
-//line1: wrong '{}' used, should be '()'
-//line4: wrong '()' used, should be '{}'
