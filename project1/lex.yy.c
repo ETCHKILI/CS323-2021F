@@ -1055,90 +1055,86 @@ YY_RULE_SETUP
 case 32:
 YY_RULE_SETUP
 #line 75 "src/lex.l"
-{ 
-            /* check_int(yytext); */
-            yylval.nd = new_tnode("INT",0,yylineno,atoi(yytext));
-            return INT; 
-            }
+{ yylval.nd = new_tnode("INT",0,yylineno,atoi(yytext)); return INT; }         
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 80 "src/lex.l"
+#line 76 "src/lex.l"
 { yylval.nd = new_tnode("INT",0,yylineno,htoi(yytext)); return INT; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 81 "src/lex.l"
+#line 77 "src/lex.l"
 { yylval.nd = new_tnode("FLOAT",0,yylineno,atof(yytext)); return FLOAT; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 82 "src/lex.l"
+#line 78 "src/lex.l"
 { yylval.nd = new_tnode("CHAR",0,yylineno); return CHAR; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 83 "src/lex.l"
+#line 79 "src/lex.l"
 { yylval.nd = new_tnode("ID",0,yylineno); return ID; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 86 "src/lex.l"
+#line 82 "src/lex.l"
 { myerror(0, yylineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* 0 leading int */}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 87 "src/lex.l"
+#line 83 "src/lex.l"
 { myerror(0, yylineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* 0 leading int */}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 88 "src/lex.l"
+#line 84 "src/lex.l"
 { myerror(0, yylineno, yytext); yylval.nd = new_tnode("INT",0,yylineno,0); return ILLEGAL_TOKEN; /* not hex digit */}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 89 "src/lex.l"
+#line 85 "src/lex.l"
 { myerror(0, yylineno, yytext); yylval.nd = new_tnode("FLOAT",0,yylineno,0); return ILLEGAL_TOKEN;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 90 "src/lex.l"
+#line 86 "src/lex.l"
 { myerror(0, yylineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return ILLEGAL_TOKEN;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 91 "src/lex.l"
+#line 87 "src/lex.l"
 { myerror(0, yylineno, yytext); yylval.nd = new_tnode("CHAR",0,yylineno); return ILLEGAL_TOKEN;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 92 "src/lex.l"
+#line 88 "src/lex.l"
 { myerror(0, yylineno, yytext); yylval.nd = new_tnode("ID",0,yylineno); return ID; }
 	YY_BREAK
 case 44:
 /* rule 44 can match eol */
 YY_RULE_SETUP
-#line 95 "src/lex.l"
+#line 91 "src/lex.l"
 { lineno += 1; }
 	YY_BREAK
 case 45:
 /* rule 45 can match eol */
 YY_RULE_SETUP
-#line 96 "src/lex.l"
+#line 92 "src/lex.l"
 { }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 98 "src/lex.l"
-{ myerror(0, yylineno, yytext); }
+#line 94 "src/lex.l"
+{ myerror(0, yylineno, yytext); return ILLEGAL_TOKEN; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 100 "src/lex.l"
+#line 96 "src/lex.l"
 ECHO;
 	YY_BREAK
-#line 1142 "lex.yy.c"
+#line 1138 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2114,7 +2110,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 100 "src/lex.l"
+#line 96 "src/lex.l"
 
 
 // void check_int(const char* int_str)

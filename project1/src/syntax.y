@@ -169,7 +169,7 @@ Exp:
     | INT {$$=new_tnode("Exp",1,$1);}
     | FLOAT {$$=new_tnode("Exp",1,$1);}
     | CHAR {$$=new_tnode("Exp",1,$1);}
-    | Exp ILLEGAL_TOKEN Exp {$$=new_tnode("Exp",2,$1,$2);}
+    | ILLEGAL_TOKEN Exp {$$=new_tnode("Exp",2,$1,$2);}
     | ILLEGAL_TOKEN {$$=new_tnode("Exp",1,$1);}
     ;
 Args: 

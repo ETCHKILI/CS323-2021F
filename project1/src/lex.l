@@ -72,11 +72,7 @@ bad_id      {digit}({digit}|{letter_})+
 "{"         { yylval.nd = new_tnode("LC",0,yylineno); return LC; }
 "}"         { yylval.nd = new_tnode("RC",0,yylineno); return RC; }
 
-{dec_int}   { 
-            /* check_int(yytext); */
-            yylval.nd = new_tnode("INT",0,yylineno,atoi(yytext));
-            return INT; 
-            }
+{dec_int}   { yylval.nd = new_tnode("INT",0,yylineno,atoi(yytext)); return INT; }         
 {hex_int}   { yylval.nd = new_tnode("INT",0,yylineno,htoi(yytext)); return INT; }
 {float}         { yylval.nd = new_tnode("FLOAT",0,yylineno,atof(yytext)); return FLOAT; }
 {char}|{hex_char}   { yylval.nd = new_tnode("CHAR",0,yylineno); return CHAR; }
@@ -95,7 +91,7 @@ bad_id      {digit}({digit}|{letter_})+
 {next_line} { lineno += 1; }
 {empty}     { }
 
-.           { myerror(0, yylineno, yytext); }
+.           { myerror(0, yylineno, yytext); return ILLEGAL_TOKEN; }
 
 %%
 

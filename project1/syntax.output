@@ -1,8 +1,8 @@
 State 17 conflicts: 1 shift/reduce
 State 30 conflicts: 1 shift/reduce
+State 54 conflicts: 4 shift/reduce
 State 61 conflicts: 1 shift/reduce
-State 139 conflicts: 4 shift/reduce
-State 152 conflicts: 20 reduce/reduce
+State 150 conflicts: 20 reduce/reduce
 
 
 Grammar
@@ -104,7 +104,7 @@ Grammar
    76    | INT
    77    | FLOAT
    78    | CHAR
-   79    | Exp ILLEGAL_TOKEN Exp
+   79    | ILLEGAL_TOKEN Exp
    80    | ILLEGAL_TOKEN
 
    81 Args: Exp COMMA Args
@@ -778,9 +778,26 @@ State 53
 
 State 54
 
-   80 Exp: ILLEGAL_TOKEN .
+   79 Exp: ILLEGAL_TOKEN . Exp
+   80    | ILLEGAL_TOKEN .
 
+    INT    shift, and go to state 58
+    FLOAT  shift, and go to state 59
+    CHAR   shift, and go to state 60
+    ID     shift, and go to state 61
+    MINUS  shift, and go to state 62
+    NOT    shift, and go to state 63
+    LP     shift, and go to state 64
+
+    ILLEGAL_TOKEN  error (nonassociative)
+
+    INT       [reduce using rule 80 (Exp)]
+    FLOAT     [reduce using rule 80 (Exp)]
+    CHAR      [reduce using rule 80 (Exp)]
+    ID        [reduce using rule 80 (Exp)]
     $default  reduce using rule 80 (Exp)
+
+    Exp  go to state 77
 
 
 State 55
@@ -790,8 +807,8 @@ State 55
    39     | IF . LP Exp error Stmt
    40     | IF . error Exp RP Stmt
 
-    error  shift, and go to state 77
-    LP     shift, and go to state 78
+    error  shift, and go to state 78
+    LP     shift, and go to state 79
 
 
 State 56
@@ -799,7 +816,7 @@ State 56
    36 Stmt: WHILE . LP Exp RP Stmt
    37     | WHILE . LP Exp error Stmt
 
-    LP  shift, and go to state 79
+    LP  shift, and go to state 80
 
 
 State 57
@@ -816,7 +833,7 @@ State 57
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 80
+    Exp  go to state 81
 
 
 State 58
@@ -848,7 +865,7 @@ State 61
    71    | ID . LP error
    75    | ID .
 
-    LP  shift, and go to state 81
+    LP  shift, and go to state 82
 
     LP        [reduce using rule 75 (Exp)]
     $default  reduce using rule 75 (Exp)
@@ -867,7 +884,7 @@ State 62
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 82
+    Exp  go to state 83
 
 
 State 63
@@ -883,7 +900,7 @@ State 63
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 83
+    Exp  go to state 84
 
 
 State 64
@@ -900,7 +917,7 @@ State 64
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 84
+    Exp  go to state 85
 
 
 State 65
@@ -914,7 +931,7 @@ State 66
 
    28 CompSt: LC DefList StmtList . RC
 
-    RC  shift, and go to state 85
+    RC  shift, and go to state 86
 
 
 State 67
@@ -937,7 +954,7 @@ State 67
     $default  reduce using rule 29 (StmtList)
 
     CompSt    go to state 65
-    StmtList  go to state 86
+    StmtList  go to state 87
     Stmt      go to state 67
     Exp       go to state 68
 
@@ -961,25 +978,23 @@ State 68
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
-    ILLEGAL_TOKEN  shift, and go to state 87
-    ASSIGN         shift, and go to state 88
-    OR             shift, and go to state 89
-    AND            shift, and go to state 90
-    LT             shift, and go to state 91
-    LE             shift, and go to state 92
-    GT             shift, and go to state 93
-    GE             shift, and go to state 94
-    NE             shift, and go to state 95
-    EQ             shift, and go to state 96
-    PLUS           shift, and go to state 97
-    MINUS          shift, and go to state 98
-    MUL            shift, and go to state 99
-    DIV            shift, and go to state 100
-    LB             shift, and go to state 101
-    DOT            shift, and go to state 102
-    SEMI           shift, and go to state 103
+    ASSIGN  shift, and go to state 88
+    OR      shift, and go to state 89
+    AND     shift, and go to state 90
+    LT      shift, and go to state 91
+    LE      shift, and go to state 92
+    GT      shift, and go to state 93
+    GE      shift, and go to state 94
+    NE      shift, and go to state 95
+    EQ      shift, and go to state 96
+    PLUS    shift, and go to state 97
+    MINUS   shift, and go to state 98
+    MUL     shift, and go to state 99
+    DIV     shift, and go to state 100
+    LB      shift, and go to state 101
+    DOT     shift, and go to state 102
+    SEMI    shift, and go to state 103
 
 
 State 69
@@ -1053,6 +1068,45 @@ State 76
 
 State 77
 
+   51 Exp: Exp . ASSIGN Exp
+   52    | Exp . AND Exp
+   53    | Exp . OR Exp
+   54    | Exp . LT Exp
+   55    | Exp . LE Exp
+   56    | Exp . GT Exp
+   57    | Exp . GE Exp
+   58    | Exp . NE Exp
+   59    | Exp . EQ Exp
+   60    | Exp . PLUS Exp
+   61    | Exp . MINUS Exp
+   62    | Exp . MUL Exp
+   63    | Exp . DIV Exp
+   72    | Exp . LB Exp RB
+   73    | Exp . LB Exp error
+   74    | Exp . DOT ID
+   79    | ILLEGAL_TOKEN Exp .
+
+    ASSIGN  shift, and go to state 88
+    OR      shift, and go to state 89
+    AND     shift, and go to state 90
+    LT      shift, and go to state 91
+    LE      shift, and go to state 92
+    GT      shift, and go to state 93
+    GE      shift, and go to state 94
+    NE      shift, and go to state 95
+    EQ      shift, and go to state 96
+    PLUS    shift, and go to state 97
+    MINUS   shift, and go to state 98
+    MUL     shift, and go to state 99
+    DIV     shift, and go to state 100
+    LB      shift, and go to state 101
+    DOT     shift, and go to state 102
+
+    $default  reduce using rule 79 (Exp)
+
+
+State 78
+
    40 Stmt: IF error . Exp RP Stmt
 
     ILLEGAL_TOKEN  shift, and go to state 54
@@ -1067,7 +1121,7 @@ State 77
     Exp  go to state 107
 
 
-State 78
+State 79
 
    34 Stmt: IF LP . Exp RP Stmt
    35     | IF LP . Exp RP Stmt ELSE Stmt
@@ -1085,7 +1139,7 @@ State 78
     Exp  go to state 108
 
 
-State 79
+State 80
 
    36 Stmt: WHILE LP . Exp RP Stmt
    37     | WHILE LP . Exp error Stmt
@@ -1102,7 +1156,7 @@ State 79
     Exp  go to state 109
 
 
-State 80
+State 81
 
    33 Stmt: RETURN Exp . SEMI
    38     | RETURN Exp . error
@@ -1122,29 +1176,27 @@ State 80
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
-    error          shift, and go to state 110
-    ILLEGAL_TOKEN  shift, and go to state 87
-    ASSIGN         shift, and go to state 88
-    OR             shift, and go to state 89
-    AND            shift, and go to state 90
-    LT             shift, and go to state 91
-    LE             shift, and go to state 92
-    GT             shift, and go to state 93
-    GE             shift, and go to state 94
-    NE             shift, and go to state 95
-    EQ             shift, and go to state 96
-    PLUS           shift, and go to state 97
-    MINUS          shift, and go to state 98
-    MUL            shift, and go to state 99
-    DIV            shift, and go to state 100
-    LB             shift, and go to state 101
-    DOT            shift, and go to state 102
-    SEMI           shift, and go to state 111
+    error   shift, and go to state 110
+    ASSIGN  shift, and go to state 88
+    OR      shift, and go to state 89
+    AND     shift, and go to state 90
+    LT      shift, and go to state 91
+    LE      shift, and go to state 92
+    GT      shift, and go to state 93
+    GE      shift, and go to state 94
+    NE      shift, and go to state 95
+    EQ      shift, and go to state 96
+    PLUS    shift, and go to state 97
+    MINUS   shift, and go to state 98
+    MUL     shift, and go to state 99
+    DIV     shift, and go to state 100
+    LB      shift, and go to state 101
+    DOT     shift, and go to state 102
+    SEMI    shift, and go to state 111
 
 
-State 81
+State 82
 
    68 Exp: ID LP . Args RP
    69    | ID LP . Args error
@@ -1166,7 +1218,7 @@ State 81
     Args  go to state 115
 
 
-State 82
+State 83
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -1185,7 +1237,6 @@ State 82
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     MUL  shift, and go to state 99
     DIV  shift, and go to state 100
@@ -1195,7 +1246,7 @@ State 82
     $default  reduce using rule 66 (Exp)
 
 
-State 83
+State 84
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -1214,7 +1265,6 @@ State 83
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     LB   shift, and go to state 101
     DOT  shift, and go to state 102
@@ -1222,7 +1272,7 @@ State 83
     $default  reduce using rule 67 (Exp)
 
 
-State 84
+State 85
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -1242,56 +1292,38 @@ State 84
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
-    error          shift, and go to state 116
-    ILLEGAL_TOKEN  shift, and go to state 87
-    ASSIGN         shift, and go to state 88
-    OR             shift, and go to state 89
-    AND            shift, and go to state 90
-    LT             shift, and go to state 91
-    LE             shift, and go to state 92
-    GT             shift, and go to state 93
-    GE             shift, and go to state 94
-    NE             shift, and go to state 95
-    EQ             shift, and go to state 96
-    PLUS           shift, and go to state 97
-    MINUS          shift, and go to state 98
-    MUL            shift, and go to state 99
-    DIV            shift, and go to state 100
-    RP             shift, and go to state 117
-    LB             shift, and go to state 101
-    DOT            shift, and go to state 102
+    error   shift, and go to state 116
+    ASSIGN  shift, and go to state 88
+    OR      shift, and go to state 89
+    AND     shift, and go to state 90
+    LT      shift, and go to state 91
+    LE      shift, and go to state 92
+    GT      shift, and go to state 93
+    GE      shift, and go to state 94
+    NE      shift, and go to state 95
+    EQ      shift, and go to state 96
+    PLUS    shift, and go to state 97
+    MINUS   shift, and go to state 98
+    MUL     shift, and go to state 99
+    DIV     shift, and go to state 100
+    RP      shift, and go to state 117
+    LB      shift, and go to state 101
+    DOT     shift, and go to state 102
 
 
-State 85
+State 86
 
    28 CompSt: LC DefList StmtList RC .
 
     $default  reduce using rule 28 (CompSt)
 
 
-State 86
+State 87
 
    30 StmtList: Stmt StmtList .
 
     $default  reduce using rule 30 (StmtList)
-
-
-State 87
-
-   79 Exp: Exp ILLEGAL_TOKEN . Exp
-
-    ILLEGAL_TOKEN  shift, and go to state 54
-    INT            shift, and go to state 58
-    FLOAT          shift, and go to state 59
-    CHAR           shift, and go to state 60
-    ID             shift, and go to state 61
-    MINUS          shift, and go to state 62
-    NOT            shift, and go to state 63
-    LP             shift, and go to state 64
-
-    Exp  go to state 118
 
 
 State 88
@@ -1307,7 +1339,7 @@ State 88
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 119
+    Exp  go to state 118
 
 
 State 89
@@ -1323,7 +1355,7 @@ State 89
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 120
+    Exp  go to state 119
 
 
 State 90
@@ -1339,7 +1371,7 @@ State 90
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 121
+    Exp  go to state 120
 
 
 State 91
@@ -1355,7 +1387,7 @@ State 91
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 122
+    Exp  go to state 121
 
 
 State 92
@@ -1371,7 +1403,7 @@ State 92
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 123
+    Exp  go to state 122
 
 
 State 93
@@ -1387,7 +1419,7 @@ State 93
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 124
+    Exp  go to state 123
 
 
 State 94
@@ -1403,7 +1435,7 @@ State 94
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 125
+    Exp  go to state 124
 
 
 State 95
@@ -1419,7 +1451,7 @@ State 95
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 126
+    Exp  go to state 125
 
 
 State 96
@@ -1435,7 +1467,7 @@ State 96
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 127
+    Exp  go to state 126
 
 
 State 97
@@ -1451,7 +1483,7 @@ State 97
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 128
+    Exp  go to state 127
 
 
 State 98
@@ -1467,7 +1499,7 @@ State 98
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 129
+    Exp  go to state 128
 
 
 State 99
@@ -1483,7 +1515,7 @@ State 99
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 130
+    Exp  go to state 129
 
 
 State 100
@@ -1499,7 +1531,7 @@ State 100
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 131
+    Exp  go to state 130
 
 
 State 101
@@ -1516,14 +1548,14 @@ State 101
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 132
+    Exp  go to state 131
 
 
 State 102
 
    74 Exp: Exp DOT . ID
 
-    ID  shift, and go to state 133
+    ID  shift, and go to state 132
 
 
 State 103
@@ -1552,24 +1584,22 @@ State 104
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
-    ILLEGAL_TOKEN  shift, and go to state 87
-    ASSIGN         shift, and go to state 88
-    OR             shift, and go to state 89
-    AND            shift, and go to state 90
-    LT             shift, and go to state 91
-    LE             shift, and go to state 92
-    GT             shift, and go to state 93
-    GE             shift, and go to state 94
-    NE             shift, and go to state 95
-    EQ             shift, and go to state 96
-    PLUS           shift, and go to state 97
-    MINUS          shift, and go to state 98
-    MUL            shift, and go to state 99
-    DIV            shift, and go to state 100
-    LB             shift, and go to state 101
-    DOT            shift, and go to state 102
+    ASSIGN  shift, and go to state 88
+    OR      shift, and go to state 89
+    AND     shift, and go to state 90
+    LT      shift, and go to state 91
+    LE      shift, and go to state 92
+    GT      shift, and go to state 93
+    GE      shift, and go to state 94
+    NE      shift, and go to state 95
+    EQ      shift, and go to state 96
+    PLUS    shift, and go to state 97
+    MINUS   shift, and go to state 98
+    MUL     shift, and go to state 99
+    DIV     shift, and go to state 100
+    LB      shift, and go to state 101
+    DOT     shift, and go to state 102
 
     $default  reduce using rule 50 (Dec)
 
@@ -1607,25 +1637,23 @@ State 107
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
-    ILLEGAL_TOKEN  shift, and go to state 87
-    ASSIGN         shift, and go to state 88
-    OR             shift, and go to state 89
-    AND            shift, and go to state 90
-    LT             shift, and go to state 91
-    LE             shift, and go to state 92
-    GT             shift, and go to state 93
-    GE             shift, and go to state 94
-    NE             shift, and go to state 95
-    EQ             shift, and go to state 96
-    PLUS           shift, and go to state 97
-    MINUS          shift, and go to state 98
-    MUL            shift, and go to state 99
-    DIV            shift, and go to state 100
-    RP             shift, and go to state 134
-    LB             shift, and go to state 101
-    DOT            shift, and go to state 102
+    ASSIGN  shift, and go to state 88
+    OR      shift, and go to state 89
+    AND     shift, and go to state 90
+    LT      shift, and go to state 91
+    LE      shift, and go to state 92
+    GT      shift, and go to state 93
+    GE      shift, and go to state 94
+    NE      shift, and go to state 95
+    EQ      shift, and go to state 96
+    PLUS    shift, and go to state 97
+    MINUS   shift, and go to state 98
+    MUL     shift, and go to state 99
+    DIV     shift, and go to state 100
+    RP      shift, and go to state 133
+    LB      shift, and go to state 101
+    DOT     shift, and go to state 102
 
 
 State 108
@@ -1649,26 +1677,24 @@ State 108
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
-    error          shift, and go to state 135
-    ILLEGAL_TOKEN  shift, and go to state 87
-    ASSIGN         shift, and go to state 88
-    OR             shift, and go to state 89
-    AND            shift, and go to state 90
-    LT             shift, and go to state 91
-    LE             shift, and go to state 92
-    GT             shift, and go to state 93
-    GE             shift, and go to state 94
-    NE             shift, and go to state 95
-    EQ             shift, and go to state 96
-    PLUS           shift, and go to state 97
-    MINUS          shift, and go to state 98
-    MUL            shift, and go to state 99
-    DIV            shift, and go to state 100
-    RP             shift, and go to state 136
-    LB             shift, and go to state 101
-    DOT            shift, and go to state 102
+    error   shift, and go to state 134
+    ASSIGN  shift, and go to state 88
+    OR      shift, and go to state 89
+    AND     shift, and go to state 90
+    LT      shift, and go to state 91
+    LE      shift, and go to state 92
+    GT      shift, and go to state 93
+    GE      shift, and go to state 94
+    NE      shift, and go to state 95
+    EQ      shift, and go to state 96
+    PLUS    shift, and go to state 97
+    MINUS   shift, and go to state 98
+    MUL     shift, and go to state 99
+    DIV     shift, and go to state 100
+    RP      shift, and go to state 135
+    LB      shift, and go to state 101
+    DOT     shift, and go to state 102
 
 
 State 109
@@ -1691,26 +1717,24 @@ State 109
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
-    error          shift, and go to state 137
-    ILLEGAL_TOKEN  shift, and go to state 87
-    ASSIGN         shift, and go to state 88
-    OR             shift, and go to state 89
-    AND            shift, and go to state 90
-    LT             shift, and go to state 91
-    LE             shift, and go to state 92
-    GT             shift, and go to state 93
-    GE             shift, and go to state 94
-    NE             shift, and go to state 95
-    EQ             shift, and go to state 96
-    PLUS           shift, and go to state 97
-    MINUS          shift, and go to state 98
-    MUL            shift, and go to state 99
-    DIV            shift, and go to state 100
-    RP             shift, and go to state 138
-    LB             shift, and go to state 101
-    DOT            shift, and go to state 102
+    error   shift, and go to state 136
+    ASSIGN  shift, and go to state 88
+    OR      shift, and go to state 89
+    AND     shift, and go to state 90
+    LT      shift, and go to state 91
+    LE      shift, and go to state 92
+    GT      shift, and go to state 93
+    GE      shift, and go to state 94
+    NE      shift, and go to state 95
+    EQ      shift, and go to state 96
+    PLUS    shift, and go to state 97
+    MINUS   shift, and go to state 98
+    MUL     shift, and go to state 99
+    DIV     shift, and go to state 100
+    RP      shift, and go to state 137
+    LB      shift, and go to state 101
+    DOT     shift, and go to state 102
 
 
 State 110
@@ -1759,12 +1783,11 @@ State 114
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
    81 Args: Exp . COMMA Args
    82     | Exp .
    83     | Exp . Args error
 
-    ILLEGAL_TOKEN  shift, and go to state 139
+    ILLEGAL_TOKEN  shift, and go to state 54
     INT            shift, and go to state 58
     FLOAT          shift, and go to state 59
     CHAR           shift, and go to state 60
@@ -1779,19 +1802,19 @@ State 114
     NE             shift, and go to state 95
     EQ             shift, and go to state 96
     PLUS           shift, and go to state 97
-    MINUS          shift, and go to state 140
+    MINUS          shift, and go to state 138
     MUL            shift, and go to state 99
     DIV            shift, and go to state 100
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
     LB             shift, and go to state 101
     DOT            shift, and go to state 102
-    COMMA          shift, and go to state 141
+    COMMA          shift, and go to state 139
 
     $default  reduce using rule 82 (Args)
 
     Exp   go to state 114
-    Args  go to state 142
+    Args  go to state 140
 
 
 State 115
@@ -1799,8 +1822,8 @@ State 115
    68 Exp: ID LP Args . RP
    69    | ID LP Args . error
 
-    error  shift, and go to state 143
-    RP     shift, and go to state 144
+    error  shift, and go to state 141
+    RP     shift, and go to state 142
 
 
 State 116
@@ -1820,48 +1843,6 @@ State 117
 State 118
 
    51 Exp: Exp . ASSIGN Exp
-   52    | Exp . AND Exp
-   53    | Exp . OR Exp
-   54    | Exp . LT Exp
-   55    | Exp . LE Exp
-   56    | Exp . GT Exp
-   57    | Exp . GE Exp
-   58    | Exp . NE Exp
-   59    | Exp . EQ Exp
-   60    | Exp . PLUS Exp
-   61    | Exp . MINUS Exp
-   62    | Exp . MUL Exp
-   63    | Exp . DIV Exp
-   72    | Exp . LB Exp RB
-   73    | Exp . LB Exp error
-   74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
-   79    | Exp ILLEGAL_TOKEN Exp .
-
-    ASSIGN  shift, and go to state 88
-    OR      shift, and go to state 89
-    AND     shift, and go to state 90
-    LT      shift, and go to state 91
-    LE      shift, and go to state 92
-    GT      shift, and go to state 93
-    GE      shift, and go to state 94
-    NE      shift, and go to state 95
-    EQ      shift, and go to state 96
-    PLUS    shift, and go to state 97
-    MINUS   shift, and go to state 98
-    MUL     shift, and go to state 99
-    DIV     shift, and go to state 100
-    LB      shift, and go to state 101
-    DOT     shift, and go to state 102
-
-    ILLEGAL_TOKEN  error (nonassociative)
-
-    $default  reduce using rule 79 (Exp)
-
-
-State 119
-
-   51 Exp: Exp . ASSIGN Exp
    51    | Exp ASSIGN Exp .
    52    | Exp . AND Exp
    53    | Exp . OR Exp
@@ -1878,7 +1859,6 @@ State 119
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     ASSIGN  shift, and go to state 88
     OR      shift, and go to state 89
@@ -1899,7 +1879,7 @@ State 119
     $default  reduce using rule 51 (Exp)
 
 
-State 120
+State 119
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -1918,7 +1898,6 @@ State 120
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     AND    shift, and go to state 90
     LT     shift, and go to state 91
@@ -1937,7 +1916,7 @@ State 120
     $default  reduce using rule 53 (Exp)
 
 
-State 121
+State 120
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -1956,7 +1935,6 @@ State 121
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     LT     shift, and go to state 91
     LE     shift, and go to state 92
@@ -1974,7 +1952,7 @@ State 121
     $default  reduce using rule 52 (Exp)
 
 
-State 122
+State 121
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -1993,7 +1971,6 @@ State 122
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     PLUS   shift, and go to state 97
     MINUS  shift, and go to state 98
@@ -2005,7 +1982,7 @@ State 122
     $default  reduce using rule 54 (Exp)
 
 
-State 123
+State 122
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -2024,7 +2001,6 @@ State 123
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     PLUS   shift, and go to state 97
     MINUS  shift, and go to state 98
@@ -2036,7 +2012,7 @@ State 123
     $default  reduce using rule 55 (Exp)
 
 
-State 124
+State 123
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -2055,7 +2031,6 @@ State 124
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     PLUS   shift, and go to state 97
     MINUS  shift, and go to state 98
@@ -2067,7 +2042,7 @@ State 124
     $default  reduce using rule 56 (Exp)
 
 
-State 125
+State 124
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -2086,7 +2061,6 @@ State 125
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     PLUS   shift, and go to state 97
     MINUS  shift, and go to state 98
@@ -2098,7 +2072,7 @@ State 125
     $default  reduce using rule 57 (Exp)
 
 
-State 126
+State 125
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -2117,7 +2091,6 @@ State 126
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     PLUS   shift, and go to state 97
     MINUS  shift, and go to state 98
@@ -2129,7 +2102,7 @@ State 126
     $default  reduce using rule 58 (Exp)
 
 
-State 127
+State 126
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -2148,7 +2121,6 @@ State 127
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     PLUS   shift, and go to state 97
     MINUS  shift, and go to state 98
@@ -2160,7 +2132,7 @@ State 127
     $default  reduce using rule 59 (Exp)
 
 
-State 128
+State 127
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -2179,7 +2151,6 @@ State 128
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     MUL  shift, and go to state 99
     DIV  shift, and go to state 100
@@ -2189,7 +2160,7 @@ State 128
     $default  reduce using rule 60 (Exp)
 
 
-State 129
+State 128
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -2208,7 +2179,6 @@ State 129
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     MUL  shift, and go to state 99
     DIV  shift, and go to state 100
@@ -2218,7 +2188,7 @@ State 129
     $default  reduce using rule 61 (Exp)
 
 
-State 130
+State 129
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -2237,7 +2207,6 @@ State 130
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     LB   shift, and go to state 101
     DOT  shift, and go to state 102
@@ -2245,7 +2214,7 @@ State 130
     $default  reduce using rule 62 (Exp)
 
 
-State 131
+State 130
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -2264,7 +2233,6 @@ State 131
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     LB   shift, and go to state 101
     DOT  shift, and go to state 102
@@ -2272,7 +2240,7 @@ State 131
     $default  reduce using rule 63 (Exp)
 
 
-State 132
+State 131
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -2292,38 +2260,81 @@ State 132
    73    | Exp . LB Exp error
    73    | Exp LB Exp . error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
-    error          shift, and go to state 145
-    ILLEGAL_TOKEN  shift, and go to state 87
-    ASSIGN         shift, and go to state 88
-    OR             shift, and go to state 89
-    AND            shift, and go to state 90
-    LT             shift, and go to state 91
-    LE             shift, and go to state 92
-    GT             shift, and go to state 93
-    GE             shift, and go to state 94
-    NE             shift, and go to state 95
-    EQ             shift, and go to state 96
-    PLUS           shift, and go to state 97
-    MINUS          shift, and go to state 98
-    MUL            shift, and go to state 99
-    DIV            shift, and go to state 100
-    LB             shift, and go to state 101
-    RB             shift, and go to state 146
-    DOT            shift, and go to state 102
+    error   shift, and go to state 143
+    ASSIGN  shift, and go to state 88
+    OR      shift, and go to state 89
+    AND     shift, and go to state 90
+    LT      shift, and go to state 91
+    LE      shift, and go to state 92
+    GT      shift, and go to state 93
+    GE      shift, and go to state 94
+    NE      shift, and go to state 95
+    EQ      shift, and go to state 96
+    PLUS    shift, and go to state 97
+    MINUS   shift, and go to state 98
+    MUL     shift, and go to state 99
+    DIV     shift, and go to state 100
+    LB      shift, and go to state 101
+    RB      shift, and go to state 144
+    DOT     shift, and go to state 102
 
 
-State 133
+State 132
 
    74 Exp: Exp DOT ID .
 
     $default  reduce using rule 74 (Exp)
 
 
-State 134
+State 133
 
    40 Stmt: IF error Exp RP . Stmt
+
+    ILLEGAL_TOKEN  shift, and go to state 54
+    IF             shift, and go to state 55
+    WHILE          shift, and go to state 56
+    RETURN         shift, and go to state 57
+    INT            shift, and go to state 58
+    FLOAT          shift, and go to state 59
+    CHAR           shift, and go to state 60
+    ID             shift, and go to state 61
+    MINUS          shift, and go to state 62
+    NOT            shift, and go to state 63
+    LP             shift, and go to state 64
+    LC             shift, and go to state 25
+
+    CompSt  go to state 65
+    Stmt    go to state 145
+    Exp     go to state 68
+
+
+State 134
+
+   39 Stmt: IF LP Exp error . Stmt
+
+    ILLEGAL_TOKEN  shift, and go to state 54
+    IF             shift, and go to state 55
+    WHILE          shift, and go to state 56
+    RETURN         shift, and go to state 57
+    INT            shift, and go to state 58
+    FLOAT          shift, and go to state 59
+    CHAR           shift, and go to state 60
+    ID             shift, and go to state 61
+    MINUS          shift, and go to state 62
+    NOT            shift, and go to state 63
+    LP             shift, and go to state 64
+    LC             shift, and go to state 25
+
+    CompSt  go to state 65
+    Stmt    go to state 146
+    Exp     go to state 68
+
+
+State 135
+
+   34 Stmt: IF LP Exp RP . Stmt
+   35     | IF LP Exp RP . Stmt ELSE Stmt
 
     ILLEGAL_TOKEN  shift, and go to state 54
     IF             shift, and go to state 55
@@ -2343,9 +2354,9 @@ State 134
     Exp     go to state 68
 
 
-State 135
+State 136
 
-   39 Stmt: IF LP Exp error . Stmt
+   37 Stmt: WHILE LP Exp error . Stmt
 
     ILLEGAL_TOKEN  shift, and go to state 54
     IF             shift, and go to state 55
@@ -2365,10 +2376,9 @@ State 135
     Exp     go to state 68
 
 
-State 136
+State 137
 
-   34 Stmt: IF LP Exp RP . Stmt
-   35     | IF LP Exp RP . Stmt ELSE Stmt
+   36 Stmt: WHILE LP Exp RP . Stmt
 
     ILLEGAL_TOKEN  shift, and go to state 54
     IF             shift, and go to state 55
@@ -2388,75 +2398,7 @@ State 136
     Exp     go to state 68
 
 
-State 137
-
-   37 Stmt: WHILE LP Exp error . Stmt
-
-    ILLEGAL_TOKEN  shift, and go to state 54
-    IF             shift, and go to state 55
-    WHILE          shift, and go to state 56
-    RETURN         shift, and go to state 57
-    INT            shift, and go to state 58
-    FLOAT          shift, and go to state 59
-    CHAR           shift, and go to state 60
-    ID             shift, and go to state 61
-    MINUS          shift, and go to state 62
-    NOT            shift, and go to state 63
-    LP             shift, and go to state 64
-    LC             shift, and go to state 25
-
-    CompSt  go to state 65
-    Stmt    go to state 150
-    Exp     go to state 68
-
-
 State 138
-
-   36 Stmt: WHILE LP Exp RP . Stmt
-
-    ILLEGAL_TOKEN  shift, and go to state 54
-    IF             shift, and go to state 55
-    WHILE          shift, and go to state 56
-    RETURN         shift, and go to state 57
-    INT            shift, and go to state 58
-    FLOAT          shift, and go to state 59
-    CHAR           shift, and go to state 60
-    ID             shift, and go to state 61
-    MINUS          shift, and go to state 62
-    NOT            shift, and go to state 63
-    LP             shift, and go to state 64
-    LC             shift, and go to state 25
-
-    CompSt  go to state 65
-    Stmt    go to state 151
-    Exp     go to state 68
-
-
-State 139
-
-   79 Exp: Exp ILLEGAL_TOKEN . Exp
-   80    | ILLEGAL_TOKEN .
-
-    INT    shift, and go to state 58
-    FLOAT  shift, and go to state 59
-    CHAR   shift, and go to state 60
-    ID     shift, and go to state 61
-    MINUS  shift, and go to state 62
-    NOT    shift, and go to state 63
-    LP     shift, and go to state 64
-
-    ILLEGAL_TOKEN  error (nonassociative)
-
-    INT       [reduce using rule 80 (Exp)]
-    FLOAT     [reduce using rule 80 (Exp)]
-    CHAR      [reduce using rule 80 (Exp)]
-    ID        [reduce using rule 80 (Exp)]
-    $default  reduce using rule 80 (Exp)
-
-    Exp  go to state 118
-
-
-State 140
 
    61 Exp: Exp MINUS . Exp
    66    | MINUS . Exp
@@ -2470,10 +2412,10 @@ State 140
     NOT            shift, and go to state 63
     LP             shift, and go to state 64
 
-    Exp  go to state 152
+    Exp  go to state 150
 
 
-State 141
+State 139
 
    81 Args: Exp COMMA . Args
 
@@ -2487,83 +2429,83 @@ State 141
     LP             shift, and go to state 64
 
     Exp   go to state 114
-    Args  go to state 153
+    Args  go to state 151
 
 
-State 142
+State 140
 
    83 Args: Exp Args . error
 
-    error  shift, and go to state 154
+    error  shift, and go to state 152
 
 
-State 143
+State 141
 
    69 Exp: ID LP Args error .
 
     $default  reduce using rule 69 (Exp)
 
 
-State 144
+State 142
 
    68 Exp: ID LP Args RP .
 
     $default  reduce using rule 68 (Exp)
 
 
-State 145
+State 143
 
    73 Exp: Exp LB Exp error .
 
     $default  reduce using rule 73 (Exp)
 
 
-State 146
+State 144
 
    72 Exp: Exp LB Exp RB .
 
     $default  reduce using rule 72 (Exp)
 
 
-State 147
+State 145
 
    40 Stmt: IF error Exp RP Stmt .
 
     $default  reduce using rule 40 (Stmt)
 
 
-State 148
+State 146
 
    39 Stmt: IF LP Exp error Stmt .
 
     $default  reduce using rule 39 (Stmt)
 
 
-State 149
+State 147
 
    34 Stmt: IF LP Exp RP Stmt .
    35     | IF LP Exp RP Stmt . ELSE Stmt
 
-    ELSE  shift, and go to state 155
+    ELSE  shift, and go to state 153
 
     $default  reduce using rule 34 (Stmt)
 
 
-State 150
+State 148
 
    37 Stmt: WHILE LP Exp error Stmt .
 
     $default  reduce using rule 37 (Stmt)
 
 
-State 151
+State 149
 
    36 Stmt: WHILE LP Exp RP Stmt .
 
     $default  reduce using rule 36 (Stmt)
 
 
-State 152
+State 150
 
    51 Exp: Exp . ASSIGN Exp
    52    | Exp . AND Exp
@@ -2583,7 +2525,6 @@ State 152
    72    | Exp . LB Exp RB
    73    | Exp . LB Exp error
    74    | Exp . DOT ID
-   79    | Exp . ILLEGAL_TOKEN Exp
 
     MUL  shift, and go to state 99
     DIV  shift, and go to state 100
@@ -2633,21 +2574,21 @@ State 152
     $default       reduce using rule 61 (Exp)
 
 
-State 153
+State 151
 
    81 Args: Exp COMMA Args .
 
     $default  reduce using rule 81 (Args)
 
 
-State 154
+State 152
 
    83 Args: Exp Args error .
 
     $default  reduce using rule 83 (Args)
 
 
-State 155
+State 153
 
    35 Stmt: IF LP Exp RP Stmt ELSE . Stmt
 
@@ -2665,11 +2606,11 @@ State 155
     LC             shift, and go to state 25
 
     CompSt  go to state 65
-    Stmt    go to state 156
+    Stmt    go to state 154
     Exp     go to state 68
 
 
-State 156
+State 154
 
    35 Stmt: IF LP Exp RP Stmt ELSE Stmt .
 
